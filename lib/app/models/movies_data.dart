@@ -1,4 +1,4 @@
-import 'package:app/app/models/movie_detail.dart';
+import 'package:app/app/models/movie_details.dart';
 
 class MoviesData {
   late int page;

@@ -1,5 +1,5 @@
 import 'package:app/app/core/fetch_movies_use_case.dart';
-import 'package:app/app/models/movie_detail.dart';
+import 'package:app/app/models/movie_details.dart';
 import 'package:mobx/mobx.dart';
 
 part 'movies_controller.g.dart';

@@ -1,5 +1,4 @@
-// ignore_for_file: prefer_const_constructors
-
+import 'package:app/app/controllers/genres_controller.dart';
 import 'package:app/app/controllers/movies_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -12,20 +11,23 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends ModularState<HomePage, MoviesController> {
+class _HomePageState extends State<HomePage> {
   ScrollController _scrollController = ScrollController();
+  final GenresController _genresController = Modular.get();
+  final MoviesController _movieController = Modular.get();
 
   @override
   void initState() {
     super.initState();
 
-    controller.getMoviesData();
+    _genresController.getGenres();
+    _movieController.getMoviesData();
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >
               (_scrollController.position.maxScrollExtent * .8) &&
-          !controller.isLastPage) {
-        controller.getMoviesData();
+          !_movieController.isLastPage) {
+        _movieController.getMoviesData();
       }
     });
   }
@@ -43,7 +45,7 @@ class _HomePageState extends ModularState<HomePage, MoviesController> {
         title: Text('Upcoming Movies'),
       ),
       body: FutureBuilder(
-        future: controller.loadMovieData(),
+        future: _movieController.loadMovieData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
@@ -53,7 +55,7 @@ class _HomePageState extends ModularState<HomePage, MoviesController> {
             }
             return Observer(
               builder: (context) {
-                var list = controller.movies;
+                var list = _movieController.movies;
                 return list != null
                     ? GridView.builder(
                         controller: _scrollController,
@@ -62,7 +64,7 @@ class _HomePageState extends ModularState<HomePage, MoviesController> {
                           crossAxisCount: 2,
                           childAspectRatio: .8,
                         ),
-                        itemCount: controller.movies.length,
+                        itemCount: _movieController.movies.length,
                         itemBuilder: (context, index) => Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: GestureDetector(
@@ -83,7 +85,8 @@ class _HomePageState extends ModularState<HomePage, MoviesController> {
                                     SizedBox(height: 4),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
+                                        horizontal: 8,
+                                        vertical: 2,
                                       ),
                                       child: Text(
                                         list[index]!.title,
@@ -107,13 +110,22 @@ class _HomePageState extends ModularState<HomePage, MoviesController> {
                                         color: Colors.black87,
                                       ),
                                     ),
-                                    SizedBox(height: 4),
+                                    SizedBox(height: 5),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 6.0,
+                                        horizontal: 8,
+                                        vertical: 2,
                                       ),
                                       child: Text(
-                                        list[index]!.genreIds.toString(),
+                                        list[index]!
+                                            .genreIds
+                                            .map((e) =>
+                                                _genresController.genres[e])
+                                            .join(', '),
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          color: Colors.grey,
+                                        ),
                                       ),
                                     ),
                                   ],

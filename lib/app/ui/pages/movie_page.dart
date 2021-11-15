@@ -1,30 +1,48 @@
-// ignore_for_file: prefer_const_constructors
-
-import 'package:app/app/models/movie_detail.dart';
+import 'package:app/app/controllers/genres_controller.dart';
+import 'package:app/app/models/movie_details.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 
-class MoviePage extends StatelessWidget {
+class MoviePage extends StatefulWidget {
   final Movie movie;
-  const MoviePage({Key? key, required this.movie}) : super(key: key);
+  const MoviePage({
+    Key? key,
+    required this.movie,
+  }) : super(key: key);
+
+  @override
+  State<MoviePage> createState() => _MoviePageState();
+}
+
+class _MoviePageState extends State<MoviePage> {
+  final GenresController _genresController = Modular.get();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _genresController.getGenres();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(movie.title),
+        title: Text(widget.movie.title),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Image.network(
-              'https://image.tmdb.org/t/p/w400/' + movie.backdropPath,
+              'https://image.tmdb.org/t/p/w400/' + widget.movie.backdropPath,
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
                   Image.network(
-                    'https://image.tmdb.org/t/p/w200/' + movie.posterPath,
+                    'https://image.tmdb.org/t/p/w200/' +
+                        widget.movie.posterPath,
                     width: 80,
                   ),
                   SizedBox(width: 16),
@@ -37,9 +55,10 @@ class MoviePage extends StatelessWidget {
                           children: [
                             TextSpan(
                               text: 'Title: \n',
+                              style: TextStyle(fontWeight: FontWeight.w500),
                             ),
                             TextSpan(
-                              text: movie.title,
+                              text: widget.movie.title,
                             ),
                           ],
                         ),
@@ -53,7 +72,7 @@ class MoviePage extends StatelessWidget {
                                 text: 'Release date: \n',
                                 style: TextStyle(fontWeight: FontWeight.w500)),
                             TextSpan(
-                                text: movie.releaseDate
+                                text: widget.movie.releaseDate
                                     .split('-')
                                     .reversed
                                     .join('/')),
@@ -68,7 +87,11 @@ class MoviePage extends StatelessWidget {
                             TextSpan(
                                 text: 'Genres: \n',
                                 style: TextStyle(fontWeight: FontWeight.w500)),
-                            TextSpan(text: movie.genreIds.join(', ')),
+                            TextSpan(
+                              text: widget.movie.genreIds
+                                  .map((e) => _genresController.genres[e])
+                                  .join(', '),
+                            ),
                           ],
                         ),
                       ),
@@ -87,7 +110,7 @@ class MoviePage extends StatelessWidget {
                     TextSpan(
                         text: 'Overview: \n',
                         style: TextStyle(fontWeight: FontWeight.w500)),
-                    TextSpan(text: movie.overview),
+                    TextSpan(text: widget.movie.overview),
                   ],
                 ),
               ),
