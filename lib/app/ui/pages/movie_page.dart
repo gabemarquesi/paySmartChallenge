@@ -36,9 +36,11 @@ class MoviePage extends StatelessWidget {
                           style: TextStyle(color: Colors.black),
                           children: [
                             TextSpan(
-                                text: 'Title: \n',
-                                style: TextStyle(fontWeight: FontWeight.w500)),
-                            TextSpan(text: movie.title),
+                              text: 'Title: \n',
+                            ),
+                            TextSpan(
+                              text: movie.title,
+                            ),
                           ],
                         ),
                       ),

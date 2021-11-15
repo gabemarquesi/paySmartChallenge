@@ -1,7 +1,7 @@
 import 'package:app/app/apis/fetch_movies_api.dart';
 import 'package:app/app/controllers/movies_controller.dart';
 import 'package:app/app/core/fetch_movies_use_case_impl.dart';
-import 'package:app/app/repositories/fetch_movies_repository_impl.dart';
+import 'package:app/app/repositories/fetch_movies/fetch_movies_repository_impl.dart';
 import 'package:app/app/ui/pages/home_page.dart';
 import 'package:app/app/ui/pages/movie_page.dart';
 import 'package:flutter_modular/flutter_modular.dart';

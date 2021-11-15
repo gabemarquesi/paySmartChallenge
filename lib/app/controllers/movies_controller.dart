@@ -1,5 +1,5 @@
 import 'package:app/app/core/fetch_movies_use_case.dart';
-import 'package:app/app/models/movies_data.dart';
+import 'package:app/app/models/movie_detail.dart';
 import 'package:mobx/mobx.dart';
 
 part 'movies_controller.g.dart';
@@ -12,21 +12,45 @@ abstract class _MoviesBaseController with Store {
   _MoviesBaseController(this.fetchMovies);
 
   @observable
-  MoviesData? moviesData = MoviesData.init();
+  List<Movie?> movies = [];
 
-  void loadMovieData() async {
+  @observable
+  int page = 1;
+
+  @observable
+  bool isLastPage = false;
+
+  @observable
+  bool isLoading = false;
+
+  Future<void> loadMovieData() async {
+    if (isLoading || isLastPage) return;
     try {
-      var response = await fetchMovies.getMoviesData();
+      var response = await fetchMovies.getMoviesData(page++);
 
-      if (response != null) moviesData = response;
+      if (response != null) {
+        addList(response.movieList);
+      } else {
+        isLastPage = true;
+      }
     } catch (ex) {
-      print(ex);
+      rethrow;
+    } finally {
+      isLoading = false;
     }
   }
 
-  void onRefresh() {
-    if (moviesData != null) {
-      loadMovieData();
-    }
+  @action
+  void getMoviesData() {
+    loadMovieData();
+  }
+
+  void addList(List<Movie> list) {
+    movies.addAll(list);
+  }
+
+  void clearData() {
+    movies.clear();
+    page = 1;
   }
 }

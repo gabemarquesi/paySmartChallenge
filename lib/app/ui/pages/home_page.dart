@@ -13,10 +13,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends ModularState<HomePage, MoviesController> {
+  ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
-    controller.loadMovieData();
+
+    controller.getMoviesData();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >
+              (_scrollController.position.maxScrollExtent * .8) &&
+          !controller.isLastPage) {
+        controller.getMoviesData();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
   }
 
   @override
@@ -24,92 +41,97 @@ class _HomePageState extends ModularState<HomePage, MoviesController> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Upcoming Movies'),
-        actions: <Widget>[
-          IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                controller.onRefresh();
-              })
-        ],
       ),
-      body: Observer(builder: (context) {
-        final list = controller.moviesData!.movieList;
-        return list != null
-            ? GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: .8,
-                ),
-                itemCount: list.length,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      Modular.to.pushNamed('/movie',
-                          arguments: controller.moviesData!.movieList[index]);
-                    },
-                    child: Card(
-                        elevation: 3,
-                        child: Column(
-                          children: [
-                            SizedBox(height: 4),
-                            Image.network(
-                              'https://image.tmdb.org/t/p/w200/' +
-                                  controller
-                                      .moviesData!.movieList[index].posterPath,
-                              height: 120,
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              list[index].title,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              list[index]
-                                  .releaseDate
-                                  .split('-')
-                                  .reversed
-                                  .join('/'),
-                              style: TextStyle(
-                                  fontSize: 11, color: Colors.black87),
-                            ),
-                            SizedBox(height: 4),
-                            Text(list[index].genreIds.toString()),
-                          ],
-                        )),
-                  ),
-                ),
-              )
-            : const Center(
-                child: CircularProgressIndicator(),
+      body: FutureBuilder(
+        future: controller.loadMovieData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(snapshot.error.toString()),
               );
-      }),
+            }
+            return Observer(
+              builder: (context) {
+                var list = controller.movies;
+                return list != null
+                    ? GridView.builder(
+                        controller: _scrollController,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: .8,
+                        ),
+                        itemCount: controller.movies.length,
+                        itemBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Modular.to
+                                  .pushNamed('/movie', arguments: list[index]);
+                            },
+                            child: Card(
+                                elevation: 3,
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: 4),
+                                    Image.network(
+                                      'https://image.tmdb.org/t/p/w200/' +
+                                          list[index]!.posterPath,
+                                      height: 120,
+                                    ),
+                                    SizedBox(height: 4),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                      ),
+                                      child: Text(
+                                        list[index]!.title,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      list[index]!
+                                          .releaseDate
+                                          .split('-')
+                                          .reversed
+                                          .join('/'),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6.0,
+                                      ),
+                                      child: Text(
+                                        list[index]!.genreIds.toString(),
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                          ),
+                        ),
+                      )
+                    : const Center(
+                        child: CircularProgressIndicator(),
+                      );
+              },
+            );
+          }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
     );
   }
 }
-
-// ListTile(
-//                       onTap: () {
-//                         Modular.to.navigate('/movie',
-//                             arguments: controller.moviesData!.movieList[index]);
-//                       },
-//                       leading: Image.network(
-//                         'https://image.tmdb.org/t/p/w500/' +
-//                             controller.moviesData!.movieList[index].posterPath,
-//                       ),
-//                       title: Padding(
-//                         padding: const EdgeInsets.all(8.0),
-//                         child: Text(
-//                           list[index].title,
-//                         ),
-//                       ),
-//                       subtitle: Padding(
-//                         padding: const EdgeInsets.all(8.0),
-//                         child: Text(
-//                           list[index].overview,
-//                         ),
-//                       ),
-//                     ),
