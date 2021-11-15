@@ -1,4 +1,5 @@
-Run $ flutter packages pub run build_runner watch --delete-conflicting-outputs
+Run $ ``flutter packages pub run build_runner watch --delete-conflicting-outputs``
+
 for mobx controller codegen
 
 # paySmartChallenge
