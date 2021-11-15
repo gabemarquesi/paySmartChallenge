@@ -1,3 +1,7 @@
+Run $ ``flutter packages pub run build_runner watch --delete-conflicting-outputs``
+
+for mobx controller codegen
+
 # paySmartChallenge
 
 As a mobile engineer you've been tasked with the development of an app for cinephiles and movie hobbyists. This first version (MVP) of the app will be very simple and limited to show the list of upcoming movies. The app will be fed with content from The Movie Database (TMDb). If no design specs were given, you're free to follow your UX and UI personal preferences.
